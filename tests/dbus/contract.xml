@@ -1,0 +1,106 @@
+<node>
+  <object path="/org/deepin/dde/Appearance1">
+    <interface name="org.deepin.dde.Appearance1">
+      <method name="Delete">
+        <arg name="ty" type="s" direction="in"/>
+        <arg name="name" type="s" direction="in"/>
+      </method>
+      <method name="GetActiveColors">
+        <arg name="activeColors" type="s" direction="out"/>
+      </method>
+      <method name="GetCurrentWorkspaceBackground">
+        <arg name="uri" type="s" direction="out"/>
+      </method>
+      <method name="GetCurrentWorkspaceBackgroundForMonitor">
+        <arg name="strMonitorName" type="s" direction="in"/>
+        <arg name="uri" type="s" direction="out"/>
+      </method>
+      <method name="GetScaleFactor">
+        <arg name="scaleFactor" type="d" direction="out"/>
+      </method>
+      <method name="GetScreenScaleFactors">
+        <arg name="scaleFactor" type="a{sd}" direction="out"/>
+      </method>
+      <method name="GetWallpaperSlideShow">
+        <arg name="monitorName" type="s" direction="in"/>
+        <arg name="slideShow" type="s" direction="out"/>
+      </method>
+      <method name="GetWorkspaceBackgroundForMonitor">
+        <arg name="index" type="i" direction="in"/>
+        <arg name="strMonitorName" type="s" direction="in"/>
+        <arg name="uri" type="s" direction="out"/>
+      </method>
+      <method name="List">
+        <arg name="ty" type="s" direction="in"/>
+        <arg name="list" type="s" direction="out"/>
+      </method>
+      <method name="Reset"/>
+      <method name="Set">
+        <arg name="ty" type="s" direction="in"/>
+        <arg name="value" type="s" direction="in"/>
+      </method>
+      <method name="SetActiveColors">
+        <arg name="activeColors" type="s" direction="in"/>
+      </method>
+      <method name="SetCurrentWorkspaceBackground">
+        <arg name="uri" type="s" direction="in"/>
+      </method>
+      <method name="SetCurrentWorkspaceBackgroundForMonitor">
+        <arg name="uri" type="s" direction="in"/>
+        <arg name="strMonitorName" type="s" direction="in"/>
+      </method>
+      <method name="SetMonitorBackground">
+        <arg name="monitorName" type="s" direction="in"/>
+        <arg name="imageGile" type="s" direction="in"/>
+      </method>
+      <method name="SetScaleFactor">
+        <arg name="scale" type="d" direction="in"/>
+      </method>
+      <method name="SetScreenScaleFactors">
+        <arg name="scaleFactor" type="a{sd}" direction="in"/>
+      </method>
+      <method name="SetWallpaperSlideShow">
+        <arg name="monitorName" type="s" direction="in"/>
+        <arg name="slideShow" type="s" direction="in"/>
+      </method>
+      <method name="SetWorkspaceBackgroundForMonitor">
+        <arg name="index" type="i" direction="in"/>
+        <arg name="strMonitorName" type="s" direction="in"/>
+        <arg name="uri" type="s" direction="in"/>
+      </method>
+      <method name="Show">
+        <arg name="ty" type="s" direction="in"/>
+        <arg name="names" type="as" direction="in"/>
+        <arg name="detail" type="s" direction="out"/>
+      </method>
+      <method name="Thumbnail">
+        <arg name="ty" type="s" direction="in"/>
+        <arg name="name" type="s" direction="in"/>
+        <arg name="file" type="s" direction="out"/>
+      </method>
+      <signal name="Changed">
+        <arg name="ty" type="s"/>
+        <arg name="value" type="s"/>
+      </signal>
+      <signal name="Refreshed">
+        <arg name="type" type="s"/>
+      </signal>
+      <property name="Background" type="s" access="read"/>
+      <property name="CursorSize" type="i" access="readwrite"/>
+      <property name="CursorTheme" type="s" access="read"/>
+      <property name="DTKSizeMode" type="i" access="readwrite"/>
+      <property name="FontSize" type="d" access="readwrite"/>
+      <property name="GlobalTheme" type="s" access="read"/>
+      <property name="GtkTheme" type="s" access="read"/>
+      <property name="IconTheme" type="s" access="read"/>
+      <property name="MonospaceFont" type="s" access="read"/>
+      <property name="Opacity" type="d" access="readwrite"/>
+      <property name="QtActiveColor" type="s" access="readwrite"/>
+      <property name="QtScrollBarPolicy" type="i" access="readwrite"/>
+      <property name="StandardFont" type="s" access="read"/>
+      <property name="WallpaperSlideShow" type="s" access="readwrite"/>
+      <property name="WallpaperURls" type="s" access="read"/>
+      <property name="WindowRadius" type="i" access="readwrite"/>
+    </interface>
+  </object>
+</node>

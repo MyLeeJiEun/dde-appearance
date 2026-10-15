@@ -1,0 +1,140 @@
+name: DBus interface test
+
+# dde-appearance 的 DBus 接口测试。
+#
+# 被测物:本仓构建出的 libplugin-dde-appearance.so(DSM 插件形态),
+# 在私有总线上经 hosts/dsm-host 加载后验证接口面。
+# 测试配置在 tests/dbus/(service.yaml / contract.xml / tests.yaml)。
+#
+# 基础镜像用 Deepin 官方的 linuxdeepin/deepin:该镜像自带 apt 源
+# (community-packages.deepin.com/beige, suite=crimson)且版本与本仓
+# 构建环境一致 —— dtk6 6.7.x / Qt6 6.8.0,dde-api-dev 等仓间依赖也有
+# 预编译包,因此无需构建依赖链。
+#
+# 依赖清单照抄 debian/control 的 Build-Depends(已实测可用):
+#   qt6-tools-dev-tools 会传递带入 qt6-l10n-tools(提供 lrelease),
+#   cmake 配置阶段需要它(translations 子目录)。
+on:
+  push:
+    # 分支名不限定:开发分支也要能跑,便于在提 PR 前先验证。
+    # (本仓既有 workflow 用 paths-ignore 而非 branches 限定,效果相同。)
+    paths-ignore:
+      - "**.md"
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  dbus-interface:
+    runs-on: ubuntu-latest
+    container: linuxdeepin/deepin:crimson
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装构建依赖
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            ca-certificates git \
+            build-essential g++ cmake pkg-config \
+            qt6-base-dev qt6-tools-dev-tools \
+            libdtk6core-dev libdtk6gui-dev \
+            libpolkit-qt6-1-dev \
+            libgdk-pixbuf2.0-0 libglib2.0-dev libxcursor-dev libgtk-3-dev \
+            libxcb1-dev libxcb-cursor-dev libxcb-randr0-dev libxcb-render0-dev \
+            libssl-dev \
+            libkf6globalaccel-dev libkf6windowsystem-dev libkf6config-dev \
+            libgsettings-qt6-dev \
+            dde-api-dev \
+            python3-dbus python3-gi dbus
+
+      - name: 验证关键工具齐备
+        run: |
+          set -e
+          cmake --version | head -1
+          # C++ 编译器:CMakeLists 的 project(... CXX) 需要它。
+          # 缺少时报 "No CMAKE_CXX_COMPILER could be found",故在此显式拦住。
+          c++ --version | head -1
+          test -x /usr/lib/qt6/bin/lrelease || { echo "缺 lrelease"; exit 1; }
+          for p in xcb-randr xcb-cursor; do
+            pkg-config --exists "$p" || { echo "缺 $p"; exit 1; }
+          done
+          pkg-config --exists dtk6core || pkg-config --exists dtk6 || true
+
+      - name: 构建被测插件
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build -j"$(nproc)"
+          find build -name '*.so' -not -path '*/CMakeFiles/*'
+          # 安装 DConfig 声明到 /usr/share/dsg/configs/。
+          # 插件启动时经 DConfig 读取自己的配置(appid=org.deepin.dde.appearance),
+          # 该文件平时由 dde-appearance 包提供;CI 里只构建不装包,缺了它
+          # DConfig 会判定 invalid,插件在 init 阶段 SIGSEGV(exit -11)。
+          # misc/dconfig/CMakeLists.txt 的 install 规则正好装这个文件。
+          cmake --install build --prefix /usr --component Unspecified 2>/dev/null || \
+            cmake --install build --prefix /usr
+          ls -la /usr/share/dsg/configs/org.deepin.dde.appearance/
+
+      - name: 安装 dbus-testing 与 dsm-host
+        run: |
+          # 依赖优先走 apt:容器内已配好 deepin 源,不必依赖 PyPI 可达性。
+          # dbus-testing 的运行时要求是 PyYAML + dbus-python + PyGObject;
+          # setuptools/wheel 是 --no-build-isolation 构建本包所必需
+          # (缺 setuptools 会报 BackendUnavailable: Cannot import
+          #  'setuptools.build_meta')。
+          #
+          # 桌面运行时资源:linuxdeepin/deepin 是精简镜像,实测
+          # /usr/share/icons/Adwaita/cursors、/usr/share/wallpapers/deepin、
+          # /usr/share/dsg/configs 三个目录都不存在。插件启动时要经它们
+          # 初始化图标主题与光标,而真实 dde-appearance 包依赖这三个包
+          # (adwaita-icon-theme / deepin-wallpapers / deepin-desktop-schemas),
+          # 故 CI 里显式补齐。注意:这三个包是否就是 CI 崩溃(exit -11)的
+          # 根因尚未证实,属于针对性试验 —— 若不解决,下一步用 gdb 取调用栈。
+          apt-get install -y --no-install-recommends \
+            python3-pip python3-setuptools python3-wheel \
+            python3-yaml python3-dbus python3-gi python3-dbusmock \
+            adwaita-icon-theme deepin-desktop-schemas deepin-wallpapers \
+            gdb
+          # python3-dbusmock:service.yaml 的 needs: - mock: dconfig 依赖它
+          # 提供 org.desktopspec.ConfigManager 替身(dde-dconfig-daemon 在
+          # CI 容器里不存在,插件拿不到 XSettings 的 ConfigPtr 会 exit(-1))。
+          # dbus-testing 尚未发布到 PyPI,从源码仓库克隆后安装。
+          # --no-deps:运行时依赖已由 apt 装好,避免 pip 再去 PyPI 取。
+          git clone --depth 1 \
+            https://github.com/MyLeeJiEun/deepin-dbus-testing /tmp/dbus-testing-src
+          pip install --break-system-packages --no-build-isolation --no-deps \
+            /tmp/dbus-testing-src
+          dbus-testing --version
+          # kind=dsm 需要宿主替身 dsm-host(可选组件,pyproject 不含它):
+          # 从 hosts/dsm-host 编译并装到 PATH —— 框架的 DSM_HOST_CANDIDATES
+          # 首选就是 PATH 里的 dbus-testing-dsm-host。
+          # cmake/g++/qt6-base-dev 已在上一步装好,这里不再重复安装。
+          cmake -S /tmp/dbus-testing-src/hosts/dsm-host \
+                -B /tmp/dsm-host-build -DCMAKE_BUILD_TYPE=Release
+          cmake --build /tmp/dsm-host-build -j"$(nproc)"
+          install -m755 /tmp/dsm-host-build/dbus-testing-dsm-host \
+                /usr/local/bin/dbus-testing-dsm-host
+          dbus-testing-dsm-host --version
+
+      - name: DBus 接口测试
+        run: |
+          # ① 静态契约校验:源码声明 XML(dbus/*.xml)vs 基线,秒级、不起服务。
+          #    先跑它,接口漂移能在几秒内暴露,不必等到拉起插件之后。
+          #    需要 --build-dir:service.yaml 的 plugin 路径引用了 ${BUILD_DIR}。
+          dbus-testing check tests/dbus --static --build-dir build
+          # ② 完整用例:经 dsm-host 在私有总线上加载构建出的 .so 并验证接口面。
+          dbus-testing run tests/dbus --build-dir build --report artifacts/
+
+      - name: 崩溃时抓调用栈
+        # 仅在上一步失败时执行。dbus-testing 对插件崩溃只能报「退出码 -11」,
+        # 看不到崩在哪;这里用 gdb 复现并打印所有线程的 backtrace。
+        # 脚本自带 20s 限时,不会把 job 挂到超时。
+        if: failure()
+        run: ./tests/dbus/debug-stack.sh build
+
+      - name: 上传报告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dbus-test-report
+          path: artifacts/

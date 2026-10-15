@@ -1,0 +1,48 @@
+# dde-appearance:DSM 插件形态,针对构建产物做密闭测试。
+apiVersion: v1
+process: libplugin-dde-appearance
+mode: isolate
+kind: dsm
+tier: T3
+
+services:
+  - org.deepin.dde.Appearance1
+
+plugin: ${BUILD_DIR}/src/service/libplugin-dde-appearance.so
+
+# XSettings dconfig 依赖 org.desktopspec.ConfigManager(真实环境由
+# dde-dconfig-daemon 在 system 总线提供)。CI 容器没有该守护进程,
+# ConfigPtr 为 NULL 时 appearancemanager.cpp 会直接 exit(-1),
+# 因此用框架自带 dconfig 替身补齐(自动拉起私有 system 总线)。
+needs:
+  - mock: dconfig
+    bus: system
+
+sandbox:
+  home: tmp
+  env:
+    QT_QPA_PLATFORM: offscreen
+    # fontsmanager.cpp getCurLang() 直接 getenv("LANGUAGE") 后 strlen,
+    # 未设置时解引用 NULL 崩溃(容器内无 locale 实测 SIGSEGV)。
+    LANG: C.UTF-8
+    LANGUAGE: en_US
+
+ready:
+  name-owner:
+    - org.deepin.dde.Appearance1
+  timeout: 20s
+
+ignore:
+  interfaces:
+    - "org.freedesktop.DBus.*"
+    # com.deepin.wm 由 dde-fakewm(X11 会话)提供,本插件只是消费方
+    # (src/service/dbus/appearancedbusproxy.cpp 里 new DDBusInterface 引用);
+    # 仓内 dbus/com.deepin.wm.xml 是它的引用声明,不是本插件的导出契约。
+    - "com.deepin.wm"
+    # com.deepin.sync.Config 是数据同步的内部子对象接口
+    # (src/service/modules/api/syncconfig.cpp 运行时 registerObject 注册,
+    # 仅 Get/Set 两个空实现),仓内无源码声明 .xml —— 属"运行时导出但无声明"的
+    # 内部接口,不纳入对外契约基线。
+    - "com.deepin.sync.Config"
+
+teardown: kill

@@ -1,0 +1,248 @@
+# 由 `dbus-testing init` 生成的用例草稿。
+# 未注释的用例可直接运行;注释态用例请补齐参数/触发方法后取消注释。
+apiVersion: v1
+cases:
+  # ---- org.deepin.ServiceManager1.Plugin @ /org/deepin/ServiceManager1/Plugin ----
+  # - name: plugin-added-emitted   # 信号载荷签名: s
+  #   steps:
+  #     - call: {method: 触发该信号的方法}
+  #     - wait-signal: {object: /org/deepin/ServiceManager1/Plugin, interface: org.deepin.ServiceManager1.Plugin, name: PluginAdded, timeout: 5s}
+  # - name: plugin-removed-emitted   # 信号载荷签名: s
+  #   steps:
+  #     - call: {method: 触发该信号的方法}
+  #     - wait-signal: {object: /org/deepin/ServiceManager1/Plugin, interface: org.deepin.ServiceManager1.Plugin, name: PluginRemoved, timeout: 5s}
+  - name: plugins-readonly
+    set-prop: {object: /org/deepin/ServiceManager1/Plugin, interface: org.deepin.ServiceManager1.Plugin, property: Plugins, value: []}
+    expect: {error: "*"}   # 建议收紧为实际错误名
+
+  # ---- org.deepin.dde.Appearance1 @ /org/deepin/dde/Appearance1 ----
+  - name: background-readable
+    get-prop: {property: Background}
+    expect: {type: "s"}
+  - name: background-readonly
+    set-prop: {property: Background, value: ""}
+    expect: {error: "*"}   # 建议收紧为实际错误名
+  # - name: changed-emitted   # 信号载荷签名: ss
+  #   steps:
+  #     - call: {method: 触发该信号的方法}
+  #     - wait-signal: {name: Changed, timeout: 5s}
+  - name: cursor-size-readable
+    get-prop: {property: CursorSize}
+    expect: {type: "i"}
+  # - name: cursor-size-roundtrip   # 可写属性:读-写-读回
+  #   steps:
+  #     - get-prop: {property: CursorSize}
+  #     - set-prop: {property: CursorSize, value: 0}
+  #       expect: {error: null}
+  - name: cursor-theme-readable
+    get-prop: {property: CursorTheme}
+    expect: {type: "s"}
+  - name: cursor-theme-readonly
+    set-prop: {property: CursorTheme, value: ""}
+    expect: {error: "*"}   # 建议收紧为实际错误名
+  - name: dtk-size-mode-readable
+    get-prop: {property: DTKSizeMode}
+    expect: {type: "i"}
+  # - name: dtk-size-mode-roundtrip   # 可写属性:读-写-读回
+  #   steps:
+  #     - get-prop: {property: DTKSizeMode}
+  #     - set-prop: {property: DTKSizeMode, value: 0}
+  #       expect: {error: null}
+  # - name: delete-smoke   # 入参签名: ss
+  #   call: {method: Delete, args: ["", ""]}
+  #   expect: {error: null}
+  #   # 补真实参数后取消注释;或改为错误路径 expect: {error: "*"}
+  - name: font-size-readable
+    get-prop: {property: FontSize}
+    expect: {type: "d"}
+  # - name: font-size-roundtrip   # 可写属性:读-写-读回
+  #   steps:
+  #     - get-prop: {property: FontSize}
+  #     - set-prop: {property: FontSize, value: 0.0}
+  #       expect: {error: null}
+  - name: get-active-colors-signature
+    call: {method: GetActiveColors}
+    expect: {signature: "s"}
+  - name: get-current-workspace-background-signature
+    call: {method: GetCurrentWorkspaceBackground}
+    expect: {signature: "s"}
+  # - name: get-current-workspace-background-for-monitor-smoke   # 入参签名: s
+  #   call: {method: GetCurrentWorkspaceBackgroundForMonitor, args: [""]}
+  #   expect: {signature: "s"}
+  #   # 补真实参数后取消注释;或改为错误路径 expect: {error: "*"}
+  - name: get-scale-factor-signature
+    call: {method: GetScaleFactor}
+    expect: {signature: "d"}
+  - name: get-screen-scale-factors-signature
+    call: {method: GetScreenScaleFactors}
+    expect: {signature: "a{sd}"}
+  # - name: get-wallpaper-slide-show-smoke   # 入参签名: s
+  #   call: {method: GetWallpaperSlideShow, args: [""]}
+  #   expect: {signature: "s"}
+  #   # 补真实参数后取消注释;或改为错误路径 expect: {error: "*"}
+  # - name: get-workspace-background-for-monitor-smoke   # 入参签名: is
+  #   call: {method: GetWorkspaceBackgroundForMonitor, args: [0, ""]}
+  #   expect: {signature: "s"}
+  #   # 补真实参数后取消注释;或改为错误路径 expect: {error: "*"}
+  - name: global-theme-readable
+    get-prop: {property: GlobalTheme}
+    expect: {type: "s"}
+  - name: global-theme-readonly
+    set-prop: {property: GlobalTheme, value: ""}
+    expect: {error: "*"}   # 建议收紧为实际错误名
+  - name: gtk-theme-readable
+    get-prop: {property: GtkTheme}
+    expect: {type: "s"}
+  - name: gtk-theme-readonly
+    set-prop: {property: GtkTheme, value: ""}
+    expect: {error: "*"}   # 建议收紧为实际错误名
+  - name: icon-theme-readable
+    get-prop: {property: IconTheme}
+    expect: {type: "s"}
+  - name: icon-theme-readonly
+    set-prop: {property: IconTheme, value: ""}
+    expect: {error: "*"}   # 建议收紧为实际错误名
+  # - name: list-smoke   # 入参签名: s
+  #   call: {method: List, args: [""]}
+  #   expect: {signature: "s"}
+  #   # 补真实参数后取消注释;或改为错误路径 expect: {error: "*"}
+  - name: monospace-font-readable
+    get-prop: {property: MonospaceFont}
+    expect: {type: "s"}
+  - name: monospace-font-readonly
+    set-prop: {property: MonospaceFont, value: ""}
+    expect: {error: "*"}   # 建议收紧为实际错误名
+  - name: opacity-readable
+    get-prop: {property: Opacity}
+    expect: {type: "d"}
+  # - name: opacity-roundtrip   # 可写属性:读-写-读回
+  #   steps:
+  #     - get-prop: {property: Opacity}
+  #     - set-prop: {property: Opacity, value: 0.0}
+  #       expect: {error: null}
+  - name: qt-active-color-readable
+    get-prop: {property: QtActiveColor}
+    expect: {type: "s"}
+  # - name: qt-active-color-roundtrip   # 可写属性:读-写-读回
+  #   steps:
+  #     - get-prop: {property: QtActiveColor}
+  #     - set-prop: {property: QtActiveColor, value: ""}
+  #       expect: {error: null}
+  - name: qt-scroll-bar-policy-readable
+    get-prop: {property: QtScrollBarPolicy}
+    expect: {type: "i"}
+  # - name: qt-scroll-bar-policy-roundtrip   # 可写属性:读-写-读回
+  #   steps:
+  #     - get-prop: {property: QtScrollBarPolicy}
+  #     - set-prop: {property: QtScrollBarPolicy, value: 0}
+  #       expect: {error: null}
+  # - name: refreshed-emitted   # 信号载荷签名: s
+  #   steps:
+  #     - call: {method: 触发该信号的方法}
+  #     - wait-signal: {name: Refreshed, timeout: 5s}
+  # - name: reset-smoke   # 入参签名: (无)
+  #   call: {method: Reset, args: []}
+  #   expect: {error: null}
+  #   # 补真实参数后取消注释;或改为错误路径 expect: {error: "*"}
+  # - name: set-smoke   # 入参签名: ss
+  #   call: {method: Set, args: ["", ""]}
+  #   expect: {error: null}
+  #   # 补真实参数后取消注释;或改为错误路径 expect: {error: "*"}
+  # - name: set-active-colors-smoke   # 入参签名: s
+  #   call: {method: SetActiveColors, args: [""]}
+  #   expect: {error: null}
+  #   # 补真实参数后取消注释;或改为错误路径 expect: {error: "*"}
+  # - name: set-current-workspace-background-smoke   # 入参签名: s
+  #   call: {method: SetCurrentWorkspaceBackground, args: [""]}
+  #   expect: {error: null}
+  #   # 补真实参数后取消注释;或改为错误路径 expect: {error: "*"}
+  # - name: set-current-workspace-background-for-monitor-smoke   # 入参签名: ss
+  #   call: {method: SetCurrentWorkspaceBackgroundForMonitor, args: ["", ""]}
+  #   expect: {error: null}
+  #   # 补真实参数后取消注释;或改为错误路径 expect: {error: "*"}
+  # - name: set-monitor-background-smoke   # 入参签名: ss
+  #   call: {method: SetMonitorBackground, args: ["", ""]}
+  #   expect: {error: null}
+  #   # 补真实参数后取消注释;或改为错误路径 expect: {error: "*"}
+  # - name: set-scale-factor-smoke   # 入参签名: d
+  #   call: {method: SetScaleFactor, args: [0.0]}
+  #   expect: {error: null}
+  #   # 补真实参数后取消注释;或改为错误路径 expect: {error: "*"}
+  # - name: set-screen-scale-factors-smoke   # 入参签名: a{sd}
+  #   call: {method: SetScreenScaleFactors, args: [{}]}
+  #   expect: {error: null}
+  #   # 补真实参数后取消注释;或改为错误路径 expect: {error: "*"}
+  # - name: set-wallpaper-slide-show-smoke   # 入参签名: ss
+  #   call: {method: SetWallpaperSlideShow, args: ["", ""]}
+  #   expect: {error: null}
+  #   # 补真实参数后取消注释;或改为错误路径 expect: {error: "*"}
+  # - name: set-workspace-background-for-monitor-smoke   # 入参签名: iss
+  #   call: {method: SetWorkspaceBackgroundForMonitor, args: [0, "", ""]}
+  #   expect: {error: null}
+  #   # 补真实参数后取消注释;或改为错误路径 expect: {error: "*"}
+  # - name: show-smoke   # 入参签名: sas
+  #   call: {method: Show, args: ["", []]}
+  #   expect: {signature: "s"}
+  #   # 补真实参数后取消注释;或改为错误路径 expect: {error: "*"}
+  - name: standard-font-readable
+    get-prop: {property: StandardFont}
+    expect: {type: "s"}
+  - name: standard-font-readonly
+    set-prop: {property: StandardFont, value: ""}
+    expect: {error: "*"}   # 建议收紧为实际错误名
+  # - name: thumbnail-smoke   # 入参签名: ss
+  #   call: {method: Thumbnail, args: ["", ""]}
+  #   expect: {signature: "s"}
+  #   # 补真实参数后取消注释;或改为错误路径 expect: {error: "*"}
+  # - name: wallpaper-slide-show-roundtrip   # 可写属性:读-写-读回
+  #   steps:
+  #     - get-prop: {property: WallpaperSlideShow}
+  #     - set-prop: {property: WallpaperSlideShow, value: ""}
+  #       expect: {error: null}
+  - name: wallpaper-u-rls-readable
+    get-prop: {property: WallpaperURls}
+    expect: {type: "s"}
+  - name: wallpaper-u-rls-readonly
+    set-prop: {property: WallpaperURls, value: ""}
+    expect: {error: "*"}   # 建议收紧为实际错误名
+  - name: window-radius-readable
+    get-prop: {property: WindowRadius}
+    expect: {type: "i"}
+  # - name: window-radius-roundtrip   # 可写属性:读-写-读回
+  #   steps:
+  #     - get-prop: {property: WindowRadius}
+  #     - set-prop: {property: WindowRadius, value: 0}
+  #       expect: {error: null}
+
+  # ---- com.deepin.sync.Config @ /org/deepin/dde/Appearance1/Background ----
+  - name: get-signature
+    call: {object: /org/deepin/dde/Appearance1/Background, interface: com.deepin.sync.Config, method: Get}
+    expect: {signature: "ay"}
+  # - name: set-smoke-2   # 入参签名: ay
+  #   call: {object: /org/deepin/dde/Appearance1/Background, interface: com.deepin.sync.Config, method: Set, args: [[]]}
+  #   expect: {error: null}
+  #   # 补真实参数后取消注释;或改为错误路径 expect: {error: "*"}
+
+  # ---- com.deepin.sync.Config @ /org/deepin/dde/Appearance1/sync ----
+  - name: get-signature-2
+    call: {object: /org/deepin/dde/Appearance1/sync, interface: com.deepin.sync.Config, method: Get}
+    expect: {signature: "ay"}
+  # - name: set-smoke-3   # 入参签名: ay
+  #   call: {object: /org/deepin/dde/Appearance1/sync, interface: com.deepin.sync.Config, method: Set, args: [[]]}
+  #   expect: {error: null}
+  #   # 补真实参数后取消注释;或改为错误路径 expect: {error: "*"}
+
+  # ---- org.deepin.dde.WallpaperSlideshow @ /org/deepin/dde/WallpaperSlideshow ----
+  # - name: get-wallpaper-slide-show-smoke-2   # 入参签名: s
+  #   expect: {signature: "s"}
+  #   # 补真实参数后取消注释;或改为错误路径 expect: {error: "*"}
+  # - name: set-wallpaper-slide-show-smoke-2   # 入参签名: ss
+  #   expect: {error: null}
+  #   # 补真实参数后取消注释;或改为错误路径 expect: {error: "*"}
+  # - name: wallpaper-slide-show-roundtrip-2   # 可写属性:读-写-读回
+  #   steps:
+  #       expect: {error: null}
+
+  # 契约漂移检查:运行时接口必须与 contract.xml 一致
+  - name: contract
+    check-contract: true
